@@ -45,7 +45,7 @@ module RubySnowflake
         # Maybe this is intended so you can iterate the result object multiple times,
         # but that seems like it goes against the point of the streaming interface.
         #
-        # TODO ?: data[index].clear
+        data[index].clear
       end
     end
 
