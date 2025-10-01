@@ -11,6 +11,7 @@ module RubySnowflake
     attr_reader :data
 
     def initialize(partition_count, row_type_data)
+      RubySnowflake::Client::DEFAULT_LOGGER.debug { "Initializing Result with #{partition_count} partitions" }
       @data = Concurrent::Array.new(partition_count)
       extract_row_metadata(row_type_data)
     end

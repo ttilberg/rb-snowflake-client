@@ -213,6 +213,7 @@ module RubySnowflake
                             sleep: lambda {|n| 2**n }, # 1, 2, 4, 8, etc
                             on: [RetryableBadResponseError, OpenSSL::SSL::SSLError],
                             log_method: retryable_log_method) do
+          logger.debug {uri.to_s}
           response = nil
           bm = Benchmark.measure { response = connection.request(request) }
           logger.debug { "HTTP Request time: #{bm.real}" }
@@ -290,6 +291,7 @@ module RubySnowflake
       def retrieve_result_set(query_start_time, query, response, streaming)
         json_body = JSON.parse(response.body, JSON_PARSE_OPTIONS)
         statement_handle = json_body["statementHandle"]
+        logger.debug { "resultSetMetaData: #{json_body["resultSetMetaData"]}" }
 
         if response.code == POLLING_RESPONSE_CODE
           result_response = poll_for_completion_or_timeout(query_start_time, query, statement_handle)
@@ -309,6 +311,7 @@ module RubySnowflake
       end
 
       def retrieve_partition_data(statement_handle, partition_index)
+        logger.debug { "Client.retrieve_partition_data(#{statement_handle}, #{partition_index})" }
         partition_response = nil
         connection_pool.with do |connection|
           partition_response = request_with_auth_and_headers(
@@ -322,6 +325,7 @@ module RubySnowflake
         bm = Benchmark.measure { partition_json = JSON.parse(partition_response.body, JSON_PARSE_OPTIONS) }
         logger.debug { "JSON parsing took: #{bm.real}" }
         partition_data = partition_json["data"]
+        logger.debug { "resultSetMetaData: #{partition_json["resultSetMetaData"]}" }
 
         partition_data
       end

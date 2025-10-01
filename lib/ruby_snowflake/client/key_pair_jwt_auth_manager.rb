@@ -22,10 +22,12 @@ module RubySnowflake
 
       def jwt_token
         return @token unless jwt_token_expired?
+        RubySnowflake::Client::DEFAULT_LOGGER.debug { "Generating a new JWT" }
 
         @token_semaphore.acquire do
           now = Time.now.to_i
           @token_expires_at = now + @jwt_token_ttl
+          RubySnowflake::Client::DEFAULT_LOGGER.debug { "New JWT expires at #{@token_expires_at} (#{Time.at(@token_expires_at).strftime("%Y-%m-%dT%H:%M:%S")})" }
 
           private_key = OpenSSL::PKey.read(@private_key_pem)
 
